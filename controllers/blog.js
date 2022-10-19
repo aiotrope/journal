@@ -1,10 +1,9 @@
 const express = require('express')
 const Blog = require('../models/blog')
-const logger = require('../utils/logger')
 
 const router = express.Router()
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res) => {
   const { title, author, url, likes } = req.body
 
   const blog = new Blog({
@@ -13,29 +12,20 @@ router.post('/', (req, res, next) => {
     url: url,
     likes: likes,
   })
-  blog
-    .save()
-    .then((newBlog) => {
-      res.status(201).json({ new_blog: newBlog })
-    })
-    .catch((err) => next(err))
+  const newBlog = await blog.save()
+  res.status(201).json(newBlog)
+
 })
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res) => {
+  const blogs = await Blog.find({}, 'title author url likes')
 
-  Blog.find({})
-    .then(blogs => {
-      let arr = []
-      for(let i = 0; i < blogs.length; i++) {
-        arr.unshift(blogs[i])
-        //logger.warn(arr)
-      }
-      res.status(200).json(blogs)
+  if(blogs) {
+    res.status(200).json(blogs)
+  } else{
+    res.status(404).end()
+  }
 
-      let newArr = [...arr]
-      logger.warn(newArr)
-    })
-    .catch(err => next(err))
 })
 
 module.exports = router
