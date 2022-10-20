@@ -1,19 +1,4 @@
-const mongoose = require('mongoose')
 const Blog = require('../models/blog')
-
-const closeDB = async() => {
-  await mongoose.connection.dropDatabase()
-  await mongoose.connection.close()
-}
-
-const clearDB = async () => {
-  const keys = Object.keys(mongoose.connection.collections)
-  keys.forEach(async (key) => {
-    await mongoose.connection.collections[key].deleteMany({})
-  })
-
-}
-
 
 const testblogs = [
   {
@@ -62,6 +47,36 @@ const postData = {
   likes: 10,
 }
 
+const postDataNoLikesProp = {
+  title:
+    'Two heads are better than one: What second brains say about how developers work',
+  author: 'Eira May',
+  url: 'https://stackoverflow.blog/2022/10/03/two-heads-are-better-than-one-what-second-brains-say-about-how-developers-work/'
+}
+
+const zeroLikesData = {
+  title:
+    'Two heads are better than one: What second brains say about how developers work',
+  author: 'Eira May',
+  url: 'https://stackoverflow.blog/2022/10/03/two-heads-are-better-than-one-what-second-brains-say-about-how-developers-work/',
+  likes: 0
+}
+
+const blankTitle = {
+  title: '',
+  author: 'Eira May',
+  url: 'https://stackoverflow.blog/2022/10/03/two-heads-are-better-than-one-what-second-brains-say-about-how-developers-work/',
+  likes: 0
+}
+
+const blankUrl = {
+  title:
+    'Two heads are better than one: What second brains say about how developers work',
+  author: 'Eira May',
+  url: '',
+  likes: 0
+}
+
 const savedBlog = async () => {
   const blogs = await Blog.find({})
   return blogs.map(b => b.toJSON())
@@ -72,7 +87,9 @@ const savedBlog = async () => {
 module.exports = {
   testblogs,
   postData,
+  postDataNoLikesProp,
   savedBlog,
-  closeDB,
-  clearDB
+  zeroLikesData,
+  blankTitle,
+  blankUrl
 }

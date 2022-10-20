@@ -3,6 +3,7 @@ const morgan = require('morgan')
 const createError = require('http-errors')
 const logger = require('../utils/logger')
 
+
 const stream = {
   write: (message) => logger.http(message),
 }
@@ -28,6 +29,16 @@ const errorHandler = (error, req, res, next) => {
   if (error.name === 'CastError') {
     return res.status(404).json({ error: error.message })
   } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
+  }else if (error.name === 'NotFoundError') {
+    return res.status(404).json({ error: error.message })
+  }else if(error.message === 'title cannot be blank!') {
+    return res.status(400).json({ error: error.message })
+  }else if(error.message === 'url cannot be empty!') {
+    return res.status(400).json({ error: error.message })
+  }else if(error.message === 'there were no blog(s) found!') {
+    return res.status(404).json({ error: error.message })
+  }else if(error.message === 'there is a problem updating blog!') {
     return res.status(400).json({ error: error.message })
   }
   next(error)
