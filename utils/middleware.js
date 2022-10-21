@@ -32,8 +32,12 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).json({ error: error.message })
   }else if (error.name === 'NotFoundError') {
     return res.status(404).json({ error: error.message })
+  }else if (error.name === 'MongoServerError') {
+    return res.status(422).json({
+      error: `duplicate username ${req.body.username} cannot be registered!`,
+    })
   }else if(error.name === 'TypeError') {
-    return res.status(400).json({ error: `${error.name}: invalid ${error.path} using ${error.value}` })
+    return res.status(400).json({ error: error.message })
   }else if(error.message === 'title cannot be blank!') {
     return res.status(400).json({ error: error.message })
   }else if(error.message === 'url cannot be empty!') {
@@ -48,6 +52,10 @@ const errorHandler = (error, req, res, next) => {
     return res.status(404).json({ error: error.message })
   }else if(error.message === 'there were no blog found!') {
     return res.status(404).json({ error: error.message })
+  }else if(error.message === 'password was not valid!') {
+    return res.status(400).json({ error: error.message })
+  }else if(error.message === 'password is required!') {
+    return res.status(400).json({ error: error.message })
   }
 
 

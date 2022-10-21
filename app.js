@@ -11,6 +11,7 @@ const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 
 const blogRouter = require('./controllers/blog')
+const userRouter = require('./controllers/user')
 
 let dbURL
 
@@ -54,6 +55,8 @@ app.use(helmet())
 app.use(middleware.loggingMiddleware)
 
 app.use('/api/blogs', blogRouter)
+
+app.use('/api/users', userRouter)
 
 app.use(middleware.endPoint404)
 
