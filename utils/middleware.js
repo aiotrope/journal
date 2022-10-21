@@ -27,23 +27,33 @@ const errorHandler = (error, req, res, next) => {
   console.log(error.message)
 
   if (error.name === 'CastError') {
-    return res.status(404).json({ error: error.message })
+    return res.status(400).json({ error: `${error.name}: invalid ${error.path} using ${error.value}` })
   } else if (error.name === 'ValidationError') {
     return res.status(400).json({ error: error.message })
   }else if (error.name === 'NotFoundError') {
     return res.status(404).json({ error: error.message })
+  }else if(error.name === 'TypeError') {
+    return res.status(400).json({ error: `${error.name}: invalid ${error.path} using ${error.value}` })
   }else if(error.message === 'title cannot be blank!') {
     return res.status(400).json({ error: error.message })
   }else if(error.message === 'url cannot be empty!') {
     return res.status(400).json({ error: error.message })
-  }else if(error.message === 'there were no blog(s) found!') {
-    return res.status(404).json({ error: error.message })
   }else if(error.message === 'there is a problem updating blog!') {
     return res.status(400).json({ error: error.message })
+  }else if(error.message === 'invalid id!') {
+    return res.status(400).json({ error: error.message })
+  }else if(error.message === 'no blog found!') {
+    return res.status(404).json({ error: error.message })
+  }else if(error.message === 'cannot delete unknown blog!') {
+    return res.status(404).json({ error: error.message })
+  }else if(error.message === 'there were no blog found!') {
+    return res.status(404).json({ error: error.message })
   }
+
+
   next(error)
 }
 
 module.exports = {
-  loggingMiddleware, endPoint404, errorHandler
+  loggingMiddleware, errorHandler, endPoint404
 }

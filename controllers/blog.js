@@ -1,25 +1,24 @@
 const express = require('express')
 const Blog = require('../models/blog')
-/* const logger = require('../utils/logger')
-const createError = require('http-errors') */
 
 const router = express.Router()
 
 router.post('/', async (req, res) => {
-  const { title, author, url } = req.body
+  const { title, author, url, likes } = req.body
 
-  const createBlog = {
+  const blog = new Blog({
     title: title,
     author: author,
-    url: url
-  }
+    url: url,
+    likes: likes,
+  })
 
-  if(!title) {
+  if (!title) {
     throw Error('title cannot be blank!')
-  }else if(!url) {
+  } else if (!url) {
     throw Error('url cannot be empty!')
-  }else {
-    const newBlog = await Blog.create(createBlog)
+  } else {
+    const newBlog = await Blog.create(blog)
     res.status(201).json(newBlog)
   }
 })
@@ -27,12 +26,11 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   const blogs = await Blog.find({}, 'title author url likes')
 
-  if(blogs) {
+  if (blogs) {
     res.status(200).json(blogs)
-  } else{
+  } else {
     throw Error('there were no blog(s) found!')
   }
-
 })
 
 router.get('/:id', async (req, res) => {
@@ -40,12 +38,11 @@ router.get('/:id', async (req, res) => {
 
   const blog = await Blog.findById(id)
 
-  if(blog) {
+  if (blog) {
     res.status(200).json(blog)
-  } else{
-    throw Error('there were no blog(s) found!')
+  } else if(!blog) {
+    throw Error('there were no blog found!')
   }
-
 })
 
 router.delete('/:id', async (req, res) => {
@@ -53,39 +50,47 @@ router.delete('/:id', async (req, res) => {
 
   const blog = await Blog.findByIdAndDelete(id)
 
-  if(blog) {
+  if (blog) {
     res.status(200).json({ message: `${id} deleted!` })
-  } else{
-    throw Error('there were no blog(s) found!')
+  } else if(!blog){
+    throw Error('cannot delete unknown blog!')
   }
-
 })
 
-
-router.put('/:id', async (req, res) => {
+router.patch('/:id', async (req, res) => {
   const id = req.params.id
 
-  const { title, author, url, likes } = req.body
+  const blog = await Blog.findById(id)
 
-  const updateBlog = {
-    title: title,
-    author: author,
-    url: url,
-    likes: likes
+  if (!blog) {
+    throw Error('no blog found!')
+  } else if (!id) {
+    throw Error('invalid id!')
   }
 
-  const opts = { new: true, upsert: true, setDefaultsOnInsert: true }
 
-  const blogUpdates = await Blog.findOneAndUpdate({ _id: id }, updateBlog, opts)
-
-  if(blogUpdates) {
-    res.status(200).json({ updatedBlogList: blogUpdates })
-  } else{
-    throw Error('there is a problem updating blog!')
+  if (req.body.title) {
+    blog.title = req.body.title
   }
+  if (req.body.author) {
+    blog.author = req.body.author
+  }
+  if (req.body.url) {
+    blog.url = req.body.url
+  }
+
+  if (req.body.likes) {
+    blog.likes = req.body.likes
+  }
+  await blog.save()
+
+  const updatedBlog = await Blog.findOne({ _id: req.params.id }, 'title author url likes')
+
+  if(updatedBlog) {
+    res.status(200).json(updatedBlog)
+  }
+
 
 })
-
-
 
 module.exports = router

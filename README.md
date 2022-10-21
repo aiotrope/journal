@@ -1,6 +1,8 @@
 # journal
 
-Exerciser: [Arnel Imperial](https://github.com/aiotrope/)
+Maintainer: [Arnel Imperial](https://github.com/aiotrope/)
+
+Start Date: 16.10.2022
 
 ## Part4: Testing Express servers, user administration
 
@@ -19,3 +21,7 @@ Exerciser: [Arnel Imperial](https://github.com/aiotrope/)
 - [Solution for Exercise 4.8 - 4.12](https://github.com/aiotrope/journal/tree/4.8)
 
 [Instruction link](https://fullstackopen.com/en/part4/testing_the_backend#exercises-4-8-4-12)
+
+- [Solution for Exercise 4.13 - 4.14](https://github.com/aiotrope/journal/tree/4.13)
+
+[Instruction link](https://fullstackopen.com/en/part4/testing_the_backend#exercises-4-13-4-14)

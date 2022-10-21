@@ -1,4 +1,5 @@
 const Blog = require('../models/blog')
+const mongoose = require('mongoose')
 
 const testblogs = [
   {
@@ -44,7 +45,7 @@ const postData = {
     'Two heads are better than one: What second brains say about how developers work',
   author: 'Eira May',
   url: 'https://stackoverflow.blog/2022/10/03/two-heads-are-better-than-one-what-second-brains-say-about-how-developers-work/',
-  likes: 10,
+  likes: 9,
 }
 
 const postDataNoLikesProp = {
@@ -77,11 +78,15 @@ const blankUrl = {
   likes: 0
 }
 
+const generateObjectID = async () => {
+  const id = new mongoose.Types.ObjectId()
+  return id.toString()
+}
+
 const savedBlog = async () => {
   const blogs = await Blog.find({})
   return blogs.map(b => b.toJSON())
 }
-
 
 
 module.exports = {
@@ -91,5 +96,6 @@ module.exports = {
   savedBlog,
   zeroLikesData,
   blankTitle,
-  blankUrl
+  blankUrl,
+  generateObjectID
 }
