@@ -12,6 +12,9 @@ const middleware = require('./utils/middleware')
 
 const blogRouter = require('./controllers/blog')
 const userRouter = require('./controllers/user')
+const loginRouter = require('./controllers/login')
+
+const userExtractor = middleware.userExtractor
 
 let dbURL
 
@@ -54,9 +57,16 @@ app.use(helmet())
 
 app.use(middleware.loggingMiddleware)
 
-app.use('/api/blogs', blogRouter)
+app.use(middleware.tokenExtractor)
+
+///app.use(middleware.userExtractor)
+
+app.use('/api/blogs', userExtractor, blogRouter)
 
 app.use('/api/users', userRouter)
+
+
+app.use('/api/login', loginRouter)
 
 app.use(middleware.endPoint404)
 

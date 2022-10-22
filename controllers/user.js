@@ -1,14 +1,18 @@
 const express = require('express')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const User = require('../models/user')
-const logger = require('../utils/logger')
+//const logger = require('../utils/logger')
 
 const router = express.Router()
 
 router.post('/', async (req, res) => {
   const { username, name, password } = req.body
 
-  if (password === undefined || password.length < 3) {
+  const regex = /^[a-zA-Z0-9$&+,:;=?@#|'<>.^*()%!-{}€"'ÄöäÖØÆ`~_]{3,}$/gm
+
+  const testPassword = regex.test(password)
+
+  if (!testPassword) {
     throw Error('password was not valid!')
   } else {
     const saltRounds = 10
@@ -24,6 +28,13 @@ router.post('/', async (req, res) => {
     const newUser = await User.create(user)
     res.status(201).json(newUser)
   }
+})
+
+router.get('/', async (req, res) => {
+  const user = await User.find({}).populate('blogs', { title: 1, author: 1, slug:1, likes: 1 })
+
+  res.status(200).json(user)
+
 })
 
 module.exports = router
