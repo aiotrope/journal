@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: (val) => {
-        return /^[a-zA-Z]{0,}[\s]?[a-zA-Z]{0,}?$/gm.test(val)
+        return /^[a-zA-Z]{0,}[\s]?[a-zA-Z.]{0,}?[a-zA-Z]{0,}[\s]?[a-zA-Z.]{0,}?[a-zA-Z]{0,}[\s]?[a-zA-Z.]{0,}?$/gm.test(val)
       },
       message: (props) => `${props.value} is not a valid name!`,
     },

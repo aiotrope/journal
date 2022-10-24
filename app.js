@@ -14,8 +14,6 @@ const blogRouter = require('./controllers/blog')
 const userRouter = require('./controllers/user')
 const loginRouter = require('./controllers/login')
 
-const userExtractor = middleware.userExtractor
-
 let dbURL
 
 if (process.env.NODE_ENV === 'development') {
@@ -57,11 +55,7 @@ app.use(helmet())
 
 app.use(middleware.loggingMiddleware)
 
-app.use(middleware.tokenExtractor)
-
-///app.use(middleware.userExtractor)
-
-app.use('/api/blogs', userExtractor, blogRouter)
+app.use('/api/blogs', blogRouter)
 
 app.use('/api/users', userRouter)
 

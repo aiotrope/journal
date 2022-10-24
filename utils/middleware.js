@@ -5,9 +5,6 @@ const createError = require('http-errors')
 const logger = require('../utils/logger')
 const jwt = require('jsonwebtoken')
 const User = require('../models/user')
-const mongoose = require('mongoose')
-
-
 
 const stream = {
   write: (message) => logger.http(message),
@@ -31,6 +28,8 @@ const tokenExtractor = (req, res, next) => {
   const authorization = req.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     req.token = authorization.substring(7)
+  } else {
+    next(createError(401))
   }
   next()
 }
@@ -41,13 +40,19 @@ const userExtractor = async (req, res, next) => {
   const decoded = jwt.decode(token, config.jwt_key)
 
   const currentUser = await User.findById(decoded.id)
+  if (!currentUser || !token || !decoded) {
+    next(createError(401))
+  } else if (currentUser || token || decoded) {
+    req.currentUser = currentUser
 
-  req.currentUser = currentUser
+    req.name = currentUser.name
 
-  req.user = decoded
-  
+    req.user = decoded
+  } else {
+    next(createError(401))
+  }
+
   next()
-
 }
 
 const endPoint404 = (req, res, next) => {
@@ -58,25 +63,28 @@ const errorHandler = (error, req, res, next) => {
   console.log(error.message)
 
   if (error.name === 'CastError') {
-    return res
-      .status(400)
-      .json({
-        error: `${error.name}: invalid ${error.path} using ${error.value}`,
-      })
+    return res.status(400).json({
+      error: `${error.name}: invalid ${error.path} using ${error.value}`,
+    })
   } else if (error.name === 'ValidationError') {
     return res.status(400).json({ error: error.message })
   } else if (error.name === 'NotFoundError') {
     return res.status(404).json({ error: error.message })
   } else if (error.name === 'MongoServerError') {
-    return res.status(422).json({
+    return res.status(400).json({
       error: `duplicate username ${req.body.username} cannot be registered!`,
     })
   } else if (error.name === 'TypeError') {
     return res.status(400).json({ error: error.message })
-  } else if (error.name === 'JsonWebTokenError') {
-    return res.status(401).json({ error: error.message })
+  } else if (
+    error.name === 'JsonWebTokenError' ||
+    error.name === 'UnauthorizedError'
+  ) {
+    return res
+      .status(401)
+      .json({ error: 'unauthorize! token maybe incorrect or missing!' })
   } else if (error.name === 'TokenExpiredError') {
-    return res.status(401).json({ error: error.message })
+    return res.status(401).json({ error: 'token expired!' })
   } else if (error.message === 'title cannot be blank!') {
     return res.status(400).json({ error: error.message })
   } else if (error.message === 'url cannot be empty!') {
@@ -96,7 +104,7 @@ const errorHandler = (error, req, res, next) => {
   } else if (error.message === 'password is required!') {
     return res.status(400).json({ error: error.message })
   } else if (error.message === 'invalid username or password!') {
-    return res.status(401).json({ error: error.message })
+    return res.status(400).json({ error: error.message })
   } else if (error.message === 'no permission to delete this blog!') {
     return res.status(403).json({ error: error.message })
   }

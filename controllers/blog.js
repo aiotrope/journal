@@ -1,27 +1,28 @@
 const config = require('../utils/config')
 const express = require('express')
 const Blog = require('../models/blog')
-const User = require('../models/user')
 const jwt = require('jsonwebtoken')
-const logger = require('../utils/logger')
 const mongoose = require('mongoose')
-
+const logger = require('../utils/logger')
 
 const router = express.Router()
 
-router.post('/', async (req, res) => {
-  const { title, author, url, likes } = req.body
+const middleware = require('../utils/middleware')
+const userExtractor = middleware.userExtractor
+const tokenExtractor = middleware.tokenExtractor
+
+router.post('/', tokenExtractor, userExtractor, async (req, res) => {
+  const { title, url, likes } = req.body
 
   //const decoded = jwt.verify(req.token, config.jwt_key)
-
-  jwt.verify(req.token, config.jwt_key)
+  jwt.verify(req.token, config.jwt_key) // request obj from tokenExtractor middleware
   //logger.warn(req.token)
 
-  const user = req.user
+  const user = req.user // request obj from userExtractor middleware
 
   const blog = new Blog({
     title: title,
-    author: author,
+    author: req.name, // request obj from userExtractor middleware
     url: url,
     likes: likes,
     user: mongoose.Types.ObjectId(user.id),
@@ -34,17 +35,16 @@ router.post('/', async (req, res) => {
   } else {
     const newBlog = await Blog.create(blog)
 
-    const currentUser = req.currentUser
+    const currentUser = req.currentUser // request obj from userExtractor middleware
 
     currentUser.blogs = currentUser.blogs.concat(newBlog._id)
 
     await currentUser.save()
 
-
     res.status(201).json(newBlog)
   }
 
-
+  logger.warn(user.username)
 })
 
 router.get('/', async (req, res) => {
@@ -72,21 +72,24 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', tokenExtractor, userExtractor, async (req, res) => {
   const blog = await Blog.findById(req.params.id)
 
   //logger.warn(blog.user.toString())
 
-  const decoded = jwt.verify(req.token, config.jwt_key)
+  jwt.verify(req.token, config.jwt_key)
 
-  const user = await User.findById(decoded.id)
+  //const user = await User.findById(decoded.id)
   //const userBlog = user.id.toString()
+
+  const user = req.user
+  logger.warn(user)
 
   if (!blog) {
     throw Error('cannot delete unknown blog!')
-  } else if (blog.user.toString() !== user.id.toString()) {
+  } else if (blog.user.toString() !== user.id) {
     throw Error('no permission to delete this blog!')
-  } else if (blog.user.toString() === user.id.toString()) {
+  } else if (blog.user.toString() === user.id) {
     await Blog.findByIdAndDelete(req.params.id)
 
     res.status(200).json({ message: `${req.params.id} deleted!` })

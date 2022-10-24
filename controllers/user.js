@@ -12,8 +12,8 @@ router.post('/', async (req, res) => {
 
   const testPassword = regex.test(password)
 
-  if (!testPassword) {
-    throw Error('password was not valid!')
+  if (!testPassword || password === undefined) {
+    throw Error('password was not valid!') // returns 400
   } else {
     const saltRounds = 10
 
