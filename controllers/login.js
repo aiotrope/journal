@@ -1,9 +1,9 @@
 const config = require('../utils/config')
 const express = require('express')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 const User = require('../models/user')
-const logger = require('../utils/logger')
+//const logger = require('../utils/logger')
 
 const router = express.Router()
 

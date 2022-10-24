@@ -10,7 +10,7 @@ const User = require("../models/user")
 const helper = require("./helper")
 const { flatMap } = require("lodash")
 const logger = require("../utils/logger")
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
 beforeAll(async () => {
