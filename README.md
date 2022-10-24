@@ -2,7 +2,7 @@
 
 Maintainer: [Arnel Imperial](https://github.com/aiotrope/)
 
-Start Date: 16.10.2022
+Date: 16.10.2022 - 24.10.2022
 
 ## Part4: Testing Express servers, user administration
 
